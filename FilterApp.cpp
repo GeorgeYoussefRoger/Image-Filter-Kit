@@ -734,7 +734,7 @@ void save_image() {
 
 
 int main() {
-    cout << "----- Welcome to Image Filter App -----\n";
+    cout << "----- Welcome to the Image Filter App -----\n";
     mainmenu();
     return 0;
 }

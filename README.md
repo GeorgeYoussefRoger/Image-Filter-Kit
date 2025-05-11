@@ -1,5 +1,5 @@
 # Image-Filter-App
-**ImageFilterLab** is a C++-based command-line application designed for applying various filters to images. Developed as a collaborative team project for a university assignment, this repository includes a single program implementing a collection of image filters. The project inherits from an `Image` class provided by our professor, Dr. Mohamed El-Ramly.
+**FilterApp** is a C++-based command-line application designed for applying various filters to images. Developed as a collaborative team project for a university assignment, this repository includes a single program implementing a collection of image filters. The project inherits from an `Image` class provided by our professor, Dr. Mohamed El-Ramly.
 
 ## Features
 - Apply 15 distinct filters, including grayscale, merge, brightness, edge detection, blur, frame, rotation, invert, infrared, sunlight, flip, black & white, resize, crop and purple.
