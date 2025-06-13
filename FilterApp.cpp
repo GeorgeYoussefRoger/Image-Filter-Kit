@@ -1,18 +1,19 @@
 #include "Image_Class.h"
 using namespace std;
 
-Image* ptr = nullptr;
+Image* ptr = nullptr; // Global pointer to track the currently loaded image
 
-void main_menu();
+void main_menu(); // Forward declaration of main menu function
 
+// Convert image to grayscale
 void gray(Image& image) {
     for (int i = 0; i < image.width; ++i) {
         for (int j = 0; j < image.height; ++j) {
             unsigned int avg = 0;
             for (int k = 0; k < image.channels; ++k) {
-                avg += image(i, j, k);
+                avg += image(i, j, k); // Sum all channel values
             }
-            avg /= image.channels;
+            avg /= image.channels; // Calculate average
             for (int k = 0; k < image.channels; ++k) {
                 image.setPixel(i, j, k, avg);
             }
@@ -20,12 +21,15 @@ void gray(Image& image) {
     }
 }
 
+// Convert image to black and white
 void black_white(Image& image) {
-    gray(image);
+    gray(image); // First convert to grayscale
     for (int i = 0; i < image.width; ++i) {
         for (int j = 0; j < image.height; ++j) {
             for (int k = 0; k < image.channels; ++k) {
                 unsigned int avg = image(i, j, 0);
+
+                // Above 127 becomes white, below becomes black
                 if (avg > 127) {
                     image.setPixel(i, j, k, 255);
                 } 
@@ -37,21 +41,23 @@ void black_white(Image& image) {
     }
 }
 
+// Invert image colors
 void invert(Image& image) {
     for (int i = 0; i < image.width; ++i) {
        for (int j = 0; j < image.height; ++j) {
           for (int k = 0; k < image.channels; ++k) {
-            image.setPixel(i, j, k, 255 - image(i, j, k));
+            image.setPixel(i, j, k, 255 - image(i, j, k)); // Subtract each channel value from 255
           }
        }
     }
 }
 
+// Merge two images
 void merge(Image& image) {
     string img2;
     Image image2;
     while (true) {
-        cout << "Enter the name of the second image with extension (.png, .jpeg, .jpg, .bmp): ";
+        cout << "Enter the name of the second image with extension (.png or .jpeg or .jpg or .bmp): ";
         cin >> img2;
         try {
             image2.loadNewImage(img2);
@@ -59,17 +65,21 @@ void merge(Image& image) {
         } 
         catch (const invalid_argument& e) {}
     }
+
+    // Case 1: Images are same size - simple merge
     if (image.width == image2.width && image.height == image2.height) { 
         for (int i = 0; i < image.width; ++i) {
             for (int j = 0; j < image.height; ++j) {
                 for (int k = 0; k < image.channels; ++k) {
                     unsigned int pixel1 = image.getPixel(i, j, k);
                     unsigned int pixel2 = image2.getPixel(i, j, k);
-                    image.setPixel(i, j, k, max(pixel1, pixel2));
+                    image.setPixel(i, j, k, max(pixel1, pixel2)); // Take maximum value of each channel
                 }
             }
         }
     }
+
+    // Case 2: Images are different sizes - provide options
     else {
         cout << "The images are of different sizes. What to do?" << endl;
         cout << "1. Resize to the biggest width and height" << endl;
@@ -80,14 +90,20 @@ void merge(Image& image) {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
+
+        // Option 1: Resize both to max dimensions
         if (choice == '1') {
             unsigned int max_width = max(image.width, image2.width);
             unsigned int max_height = max(image.height, image2.height);
             Image merged(max_width, max_height);
+
+            // Calculate scaling factors
             float scale_row1 = (float)image.width / max_width;
             float scale_column1 = (float)image.height / max_height;
             float scale_row2 = (float)image2.width / max_width;
             float scale_column2 = (float)image2.height / max_height;
+
+            // Scale and merge
             for (int i = 0; i < max_width; ++i) {
                 for (int j = 0; j < max_height; ++j) {
                     for (int k = 0; k < image.channels; ++k) {
@@ -99,10 +115,14 @@ void merge(Image& image) {
             }
             image = merged; 
         }
+
+        // Option 2: Crop to common area
         else if (choice == '2') {
             int common_width = min(image.width, image2.width);
             int common_height = min(image.height, image2.height);
             Image merged(common_width, common_height);
+
+            // Merge the common area
             for (int i = 0; i < common_width; ++i) {
                 for (int j = 0; j < common_height; ++j) {
                     for (int k = 0; k < image.channels; ++k) {
@@ -117,14 +137,19 @@ void merge(Image& image) {
     }
 }
 
+// Flip image horizontally or vertically
 void flip(Image& image) {
-    cout << "Choose flip direction:\n1. Flip Horizontally\n2. Flip Vertically\n=>";
+    cout << "Choose flip direction:" << endl;
+    cout << "1. Flip Horizontally" << endl;
+    cout << "2. Flip Vertically\n=>";
     char choice;
     while (!(cin >> choice && (choice == '1' || choice == '2'))) {
         cout << "Invalid choice. Enter 1 or 2: ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
+
+    // Horizontal flip - swap pixels from left and right
     if (choice == '1') {
         for (int i = 0; i < image.width / 2; ++i) {
             for (int j = 0; j < image.height; ++j) {
@@ -134,6 +159,8 @@ void flip(Image& image) {
             }
         }
     }
+
+    // Vertical flip - swap pixels from top and bottom
     else if (choice == '2') {
         for (int i = 0; i < image.width; ++i) {
             for (int j = 0; j < image.height / 2; ++j) {
@@ -145,14 +172,20 @@ void flip(Image& image) {
     }
 }
 
+// Rotate image by 90, 180, or 270 degrees
 void rotate(Image& image) {
-    cout << "Choose rotation degree:\n1. 90 degree\n2. 180 degree\n3. 270 degree\n=>";
+    cout << "Choose rotation degree:" << endl;
+    cout << "1. 90 degree" << endl;
+    cout << "2. 180 degree" << endl;
+    cout << "3. 270 degree\n=>";
     char choice;
     while (!(cin >> choice && (choice == '1' || choice == '2' || choice == '3'))) {
         cout << "Invalid choice. Enter 1, 2, or 3: ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
+
+    // 90 degree rotation
     if (choice == '1') {
         Image rotated(image.height, image.width);
         for (int i = 0; i < image.width; ++i) {
@@ -164,6 +197,8 @@ void rotate(Image& image) {
         }
         image = rotated;
     }
+
+    // 180 degree rotation
     else if (choice == '2') {
         Image rotated(image.width, image.height);
         for (int i = 0; i < image.width; ++i) {
@@ -176,6 +211,8 @@ void rotate(Image& image) {
         }
         image = rotated;
     }
+
+    // 270 degree rotation
     else if (choice == '3') {
         Image rotated(image.height, image.width);
         for (int i = 0; i < image.width; ++i) {
@@ -189,18 +226,21 @@ void rotate(Image& image) {
     }
 }
 
+// Adjust image brightness by percentage
 void brightness(Image& image) {
     cout << "Enter the percentage to adjust brightness (-50 to 50): ";
     float percentage;
     while (!(cin >> percentage && percentage >= -50 && percentage <= 50)) {
-        cout << "Invalid input. Please enter a number between (-50 to 50): ";
+        cout << "Invalid input. Enter a number between -50 and 50: ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
-    float factor = 1 + (percentage / 100);
+
+    float factor = 1 + (percentage / 100); // Calculate brightness factor
     for (int i = 0; i < image.width; ++i) {
         for (int j = 0; j < image.height; ++j) {
             for (int k = 0; k < image.channels; ++k) {
+                // Apply factor and clamp to 0-255 range
                 float new_value = round(image(i, j, k) * factor);
                 image(i, j, k) = new_value < 0 ? 0 : new_value > 255 ? 255 : new_value;
             }
@@ -208,23 +248,29 @@ void brightness(Image& image) {
     }
 }
 
+// Crop a rectangular region from the image
 void crop(Image& image) {
     cout << "Image width = " << image.width << endl;
     cout << "Image height = " << image.height << endl;
+
+    // Get top-left corner coordinates
     unsigned int x, y;
     cout << "Enter top-left corner (x, y) of crop area: ";
     while (!(cin >> x >> y && x < image.width && y < image.height)) {
-        cout << "Invalid input. Please enter valid image bounds: ";
+        cout << "Invalid input. Enter valid image bounds: ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
+
+    // Get width and height of crop area
     unsigned int w, h;
     cout << "Enter crop width and height: ";
     while (!(cin >> w >> h && x + w <= image.width && y + h <= image.height)) {
-        cout << "Invalid input. Please enter valid width and height: ";
+        cout << "Invalid input. Enter valid width and height: ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
+
     Image cropped(w, h);
     for(int i = 0; i < w; ++i) {
         for(int j = 0; j < h; ++j) {
@@ -236,32 +282,42 @@ void crop(Image& image) {
     image = cropped;
 }
 
+// Add a frame around the image
 void frame(Image& image) {
     unsigned int frame_size;
-    cout << "Enter frame thickness (10-100 pixels): ";
+    cout << "Enter frame thickness (10 to 100): ";
     while (!(cin >> frame_size && frame_size >= 10 && frame_size <= 100)) {
-        cout << "Invalid input. Please enter a number between 10 and 100: ";
+        cout << "Invalid input. Enter a number between 10 and 100: ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
-    cout << "Choose frame style:\n1. Simple frame\n2. Decorated frame\n=>";
+
+    cout << "Choose frame style:" << endl;
+    cout << "1. Simple frame" << endl;
+    cout << "2. Decorated frame\n=>";
     char choice;
     while (!(cin >> choice && (choice == '1' || choice == '2'))) {
         cout << "Invalid choice. Enter 1 or 2: ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
+
+    // Calculate new dimensions with frame
     unsigned int new_width = image.width + 2 * frame_size;
     unsigned int new_height = image.height + 2 * frame_size;
     Image framed(new_width, new_height);
+
+    // Simple solid color frame
     if (choice == '1') {
         unsigned int r, g, b;
-        cout << "Enter the frame colors (red, green, blue) from 0-255 for each: ";
+        cout << "Enter the frame colors (red, green, blue) from (0 to 255) for each: ";
         while (!(cin >> r >> g >> b && r <= 255 && g <= 255 && b <= 255)) {
-            cout << "Invalid input. Please enter three numbers between 0 and 255: ";
+            cout << "Invalid input. Enter three numbers between (0 to 255): ";
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
+
+        // Fill entire new image with frame color
         for (int i = 0; i < new_width; ++i) {
             for (int j = 0; j < new_height; ++j) {
                 framed(i, j, 0) = r;
@@ -270,7 +326,10 @@ void frame(Image& image) {
             }
         }
     }
+
+    // Decorated frame with inner border
     else if (choice == '2') {
+        // Outer frame color (gold)
         for (int i = 0; i < new_width; ++i) {
             for (int j = 0; j < new_height; ++j) {
                 framed(i, j, 0) = 212;
@@ -278,6 +337,8 @@ void frame(Image& image) {
                 framed(i, j, 2) = 55;
             }
         }
+
+        // Inner border (red)
         unsigned int inner_border = frame_size / 3;
         for (int i = inner_border; i < new_width - inner_border; ++i) {
             for (int j = inner_border; j < new_height - inner_border; ++j) {
@@ -297,11 +358,16 @@ void frame(Image& image) {
     image = framed;
 }
 
-void edges(Image& image) {
-    gray(image);
+// Detect edges
+void edges(Image& image) { 
+    gray(image); // First convert to grayscale
     Image detected(image.width, image.height);
+
+    // Sobel operator kernels
     int sobel_x[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
     int sobel_y[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
+
+    // Apply Sobel operator to detect edges
     for (int i = 1; i < image.width - 1; ++i) {
         for (int j = 1; j < image.height - 1; ++j) {
             long Gx = 0, Gy = 0;
@@ -311,6 +377,8 @@ void edges(Image& image) {
                     Gy += sobel_y[x + 1][y + 1] * image(i + x, j + y, 0);
                 }
             }
+
+            // Calculate gradient magnitude and threshold
             unsigned char value = (unsigned char)min(255.0, sqrt(Gx * Gx + Gy * Gy));
             for (int k = 0; k < image.channels; ++k) {
                 detected.setPixel(i, j, k, value > 127 ? 0 : 255);
@@ -320,23 +388,31 @@ void edges(Image& image) {
     image = detected;
 }
 
+// Resize image by dimensions or ratio
 void resize(Image& image) {
-    cout << "Choose resize method:\n1. By dimensions\n2. By ratio\n=>";
+    cout << "Choose resize method:" << endl;
+    cout << "1. By dimensions" << endl;
+    cout << "2. By ratio\n=>";
     char choice;
     while (!(cin >> choice && (choice == '1' || choice == '2'))) {
         cout << "Invalid choice. Enter 1 or 2: ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
+
     float w, h;
+
+    // Resize by absolute dimensions
     if (choice == '1') {
         cout << "Enter width then height: ";
         while (!(cin >> w >> h)) {
-            cout << "Invalid input. Please enter valid numbers: ";
+            cout << "Invalid input. Enter valid numbers: ";
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
     }
+
+    // Resize by ratio
     else if (choice == '2') {
         float ratio_width, ratio_height;
         cout << "Enter width ratio then height ratio: ";
@@ -348,8 +424,11 @@ void resize(Image& image) {
         w = round(image.width * ratio_width);
         h = round(image.height * ratio_height);
     }
+
+    // Calculate scaling factors
     float scale_row = image.width / w;
     float scale_column = image.height / h;
+
     Image resized(w, h);
     for (int i = 0; i < w; ++i) {
         for (int j = 0; j < h; ++j) {
@@ -361,16 +440,20 @@ void resize(Image& image) {
     image = resized;
 }
 
+// Apply blur effect
 void blur(Image& image) {
     unsigned int kernelSize;
     cout << "Enter blur intensity (a positive odd number): ";
     while (!(cin >> kernelSize) || kernelSize % 2 == 0 || kernelSize < 1) {
-        cout << "Invalid input. Please enter a positive odd number: ";
+        cout << "Invalid input. Enter a positive odd number: ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
+
     Image blurred = image;
     int kernelRadius = kernelSize / 2;
+
+    // Horizontal blur pass
     for (int j = 0; j < image.height; ++j) {
         for (int i = 0; i < image.width; ++i) {
             for (int k = 0; k < image.channels; ++k) {
@@ -386,6 +469,8 @@ void blur(Image& image) {
             }
         }
     }
+
+    // Vertical blur pass
     for (int i = 0; i < image.width; ++i) {
         for (int j = 0; j < image.height; ++j) {
             for (int k = 0; k < image.channels; ++k) {
@@ -403,25 +488,29 @@ void blur(Image& image) {
     }
 }
 
+// Apply sunlight effect
 void sunlight(Image& image) {
     for (int i = 0; i < image.width; ++i) {
         for (int j = 0; j < image.height; ++j) {
-            image(i, j, 2) *= 0.5;
-        }
+            image(i, j, 2) *= 0.5; // Reduce blue channel by half
+        } 
     }
 }
 
+// Apply purple effect
 void purple(Image& image) {
     for (int i = 0; i < image.width; ++i) {
         for (int j = 0; j < image.height; ++j) {
-            image(i, j, 1) *= 0.5;
+            image(i, j, 1) *= 0.5; // Reduce green channel by half
         }
     }
 }
 
+// Apply infrared effect
 void infrared(Image& image) {
     for (int i = 0; i < image.width; i++) {
         for (int j = 0; j < image.height; j++) {
+            // Set red to max, invert green and blue
             image.setPixel(i, j, 0, 255);
             image.setPixel(i, j, 1, 255 - image(i, j, 1));
             image.setPixel(i, j, 2, 255 - image(i, j, 2));
@@ -429,14 +518,83 @@ void infrared(Image& image) {
     }
 }
 
+void oil(Image& image) {
+    cout << "Not Implemented Yet" << endl;
+}
+
+// Apply TV effect with
+void tv(Image& image) {
+    for (int i = 0; i < image.width; ++i) {
+        for (int j = 0; j < image.height; j += 2) {
+            for (int k = 0; k < image.channels; ++k) {
+                image(i, j, k) = image(i, j, k) * 0.6; // Darken every other line
+                // Add random noise
+                if (rand() % 100 < 5) {
+                    image(i, j, k) = (rand() % 2) ? 0 : 255;
+                }
+            }
+        }
+    }
+}
+
+// Skew image
+void skew(Image& image) {
+    cout << "Enter the skew degree (-45 to 45): ";
+    float degree;
+    while (!(cin >> degree && degree >= -45 && degree <= 45)) {
+        cout << "Invalid input. Enter a number between -45 and 45: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    // Convert degrees to radians
+    float radian = degree * M_PI / 180.0;
+    float tan_angle = tan(radian);
+
+     // Calculate maximum shift and new width
+    unsigned int max_shift = abs(image.height * tan_angle);
+    unsigned int new_width = image.width + max_shift;
+
+    // Add white backgrouund
+    Image skewed(new_width, image.height);
+    for (int i = 0; i < new_width; ++i) {
+        for (int j = 0; j < image.height; ++j) {
+            for (int k = 0; k < skewed.channels; ++k) {
+                skewed.setPixel(i, j, k, 255);
+            }
+        }
+    }
+
+    // Calculate x offset for negative angles
+    unsigned int offset_x = 0;
+    if (tan_angle < 0) {
+        offset_x = abs((image.height - 1) * tan_angle);
+    }
+
+    for (int j = 0; j < image.height; ++j) {
+        float shift = (image.height - 1 - j) * tan_angle;
+        for (int i = 0; i < image.width; ++i) {
+            unsigned int new_x = i + shift + offset_x;
+            if (new_x < skewed.width) {
+                for (int k = 0; k < image.channels; ++k) {
+                    skewed(new_x, j, k) = image(i, j, k);
+                }
+            }
+        }
+    }
+    image = skewed;
+}
+
+// Display filter menu and apply selected filter
 void filter_menu(Image& image) {
     cout << "Choose the filter you want to apply:\n";
     cout << "1) Gray\n2) Black & White\n3) Invert\n4) Merge\n5) Flip" << endl;
     cout << "6) Rotate\n7) Brightness\n8) Crop\n9) Frame\n10) Edge detection" << endl;
-    cout << "11) Resize\n12) Blur\n13) Sunlight\n14) Purple\n15) Infrared\n==>";
+    cout << "11) Resize\n12) Blur\n13) Sunlight\n14) Purple\n15) Infrared" << endl;
+    cout << "16) Oil Painting\n17) TV Effect\n18) Skew\n==>";
     int choice;
-    while (!(cin >> choice && (choice >= 1 && choice <= 15))) {
-        cout << "Invalid choice. Enter a number between 1 and 15: ";
+    while (!(cin >> choice && (choice >= 1 && choice <= 18))) {
+        cout << "Invalid choice. Enter a number between 1 and 18: ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
@@ -485,17 +643,27 @@ void filter_menu(Image& image) {
     else if (choice == 15) {
         infrared(image);
     }
+    else if (choice == 16) {
+        oil(image);
+    }
+    else if (choice == 17) {
+        tv(image);
+    }
+    else if (choice == 18) {
+        skew(image);
+    }
     cout << "Filter applied successfully" << endl;
     ptr = &image;
 }
 
+// Save the current image to file
 void saving() {
     string saved;
     if (ptr == nullptr) {
         cout << "No image to save. Please load an image first." << endl;
         main_menu();
     }
-    cout << "Enter the name of the image to save with extension (.png, .jpeg, .jpg, .bmp): ";
+    cout << "Enter the name of the image to save with extension (.png or .jpeg or .jpg or .bmp): ";
     while (true) {
         cin >> saved;
         string ext;
@@ -506,6 +674,8 @@ void saving() {
         if (saved.length() > 5) {
             ext_jpeg = saved.substr(saved.length() - 5);
         }
+
+        // Validate file extension
         if (ext == ".jpg" || ext == ".png" || ext == ".bmp" || ext_jpeg == ".jpeg") {
             ptr->saveImage(saved);
             cout << "Image saved as " << saved << endl;
@@ -518,6 +688,7 @@ void saving() {
     }
 }
 
+// Main menu with program flow control
 void main_menu() {
     Image image;
     string img;
@@ -533,7 +704,10 @@ void main_menu() {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
+
+        // Load image
         if (choice == '1') {
+            // Handle case where image is already loaded
             if(ptr != nullptr) {
                 cout << "There is a loaded image already. What to do?" << endl;
                 cout << "1) Ignore the old image and work on a new one\n2) Return to the main menu\n==>";
@@ -547,7 +721,8 @@ void main_menu() {
                     main_menu();
                 }
             }
-            cout << "Enter the name of the image to load with extension (.png, .jpeg, .jpg, .bmp): ";
+
+            cout << "Enter the name of the image to load with extension (.png or .jpeg or .jpg or .bmp): ";
             cin >> img;
             try {
                 image.loadNewImage(img);
@@ -555,9 +730,13 @@ void main_menu() {
             }
             catch (const invalid_argument& e) {}
         }
+
+        // Save image
         else if (choice == '2') {
             saving();
         }
+
+        // Apply another filter
         else if (choice == '3') {
             if (ptr == nullptr) {
                 cout << "There is no image loaded." << endl;
@@ -567,10 +746,13 @@ void main_menu() {
                 filter_menu(image);
             }
         }
+
+        // Exit
         else if (choice == '4') {
+            // Prompt to save the loaded image before exiting
             if (ptr != nullptr) {
                 cout << "Are you sure you want to exit without saving?" << endl;
-                cout << "1) Yes 2) No" << endl;
+                cout << "1) Yes 2) No =>";
                 char c;
                 while (!(cin >> c) || (c != '1' && c != '2')) {
                     cout << "Invalid choice. Enter 1 or 2: ";
