@@ -1,8 +1,36 @@
-# Image-Filter-App
-**FilterApp** is a C++-based command-line application designed for applying various filters to images. Developed as a collaborative team project for a university assignment, this repository includes a single program implementing a collection of image filters. The project inherits from an `Image` class provided by our professor, Dr. Mohamed El-Ramly.
+# PixelForge
+
+**PixelForge** is an interactive, menu-driven C++ application for applying a wide variety of image processing filters. This project supports loading, editing and saving images in multiple formats. Demonstrating core image processing techniques through a console-based interface.
 
 ## Features
-- Apply 15 distinct filters, including grayscale, merge, brightness, edge detection, blur, frame, rotation, invert, infrared, sunlight, flip, black & white, resize, crop and purple.
-- Supports user inputs for filter customization (e.g., brightness percentage, merge options, crop dimensions).
-- Validates inputs to ensure valid image files and parameters (e.g., PNG, JPEG, BMP formats).
-- User-friendly menu-driven interface for loading, filtering, and saving images.
+PixelForge offers a rich set of 18 image filters and transformations:
+- **Basic Adjustments**: Grayscale, Black & White, Invert, Brightness, Resize, Crop
+- **Color Effects**: Sunlight, Purple, Infrared
+- **Transformations**: Flip, Rotate, Skew
+- **Enhancements**: Blur, Oil Painting, TV Effect
+- **Editing**: Frame (Simple/Decorated), Merge Images, Edge Detection
+
+## Technologies & Concepts
+- **Language**: C++
+- **Image Processing**: Direct pixel manipulation using RGB channels
+- **Third-party Libraries**: 
+  - `stb_image.h` and `stb_image_write.h` for image I/O
+- **Image Formats Supported**: `.jpg`, `.jpeg`, `.png`, `.bmp`
+
+## Prerequisites
+- A C++17 (or later) compatible compiler
+- Ensure that `Image_Class.h` , `stb_image.h` and `stb_image_write.h` are present in the same directory or properly linked.
+
+## How to Use
+1. **Load Image**  
+   Accepts valid filenames with supported extensions.
+2. **Apply Filters**  
+   Choose from the menu to apply one or more transformations sequentially.
+3. **Save Image**  
+   Save your result with a specified filename and extension.
+
+## Acknowledgment
+This project was built using a custom image handling library provided by:
+> **Dr. Mohamed El Ramly**  
+> Faculty of Computers and Artificial Intelligence  
+> Cairo University
