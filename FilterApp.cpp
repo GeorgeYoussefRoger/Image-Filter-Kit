@@ -149,23 +149,23 @@ void flip(Image& image) {
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 
-    // Horizontal flip - swap pixels from left and right
+    // Horizontal flip
     if (choice == '1') {
         for (int i = 0; i < image.width / 2; ++i) {
             for (int j = 0; j < image.height; ++j) {
                 for (int k = 0; k < image.channels; ++k) {
-                    swap(image(i, j, k), image(image.width - 1 - i, j, k));
+                    swap(image(i, j, k), image(image.width - 1 - i, j, k)); // Swap pixels from left and right
                 }
             }
         }
     }
 
-    // Vertical flip - swap pixels from top and bottom
+    // Vertical flip 
     else if (choice == '2') {
         for (int i = 0; i < image.width; ++i) {
             for (int j = 0; j < image.height / 2; ++j) {
                 for (int k = 0; k < image.channels; ++k) {
-                    swap(image(i, j, k), image(i, image.height - 1 - j, k));
+                    swap(image(i, j, k), image(i, image.height - 1 - j, k)); // Swap pixels from top and bottom
                 }
             }
         }
@@ -348,6 +348,7 @@ void frame(Image& image) {
             }
         }
     }
+
     for (int i = 0; i < image.width; ++i) {
         for (int j = 0; j < image.height; ++j) {
             for (int k = 0; k < image.channels; ++k) {
@@ -518,11 +519,61 @@ void infrared(Image& image) {
     }
 }
 
+// Apply oil painting effect
 void oil(Image& image) {
-    cout << "Not Implemented Yet" << endl;
+    int radius = 2;
+    int intensitylevels = 8;
+    Image oiled(image.width, image.height);
+    for (int i = 0; i < image.width; ++i) {
+        for (int j = 0; j < image.height; ++j) {
+            int Hist[intensitylevels] = {0}; // Histogram to count pixels at each intensity level
+
+            // Arrays to accumulate color sums for each intensity level
+            int rSum[intensitylevels] = {0};
+            int gSum[intensitylevels] = {0};
+            int bSum[intensitylevels] = {0};
+
+            // Calculate neighborhood boundaries
+            int left = max(0, i - radius);
+            int right = min(image.width - 1, i + radius);
+            int top = max(0, j - radius);
+            int bottom = min(image.height - 1, j + radius);
+
+            for (int x = left; x <= right; ++x) {
+                for (int y = top; y <= bottom; ++y) {
+                    // Get RGB of current pixel
+                    unsigned int sum = 0;
+                    for (int k = 0; k < image.channels; ++k) {
+                        sum += image(x, y, k);
+                    }
+
+                    // Calculate intensity level (0 to intensitylevels-1)
+                    unsigned int intensity = ((sum) / 3 * (intensitylevels - 1)) / 255;
+
+                    // Update histogram and color sums for this intensity level
+                    Hist[intensity]++;
+                    rSum[intensity] += image(x, y, 0);
+                    gSum[intensity] += image(x, y, 1);
+                    bSum[intensity] += image(x, y, 2);
+                }
+            }
+            // Find the most frequent intensity level in neighborhood
+            int maxCount = 0, maxIndex = 0;
+            for (int x = 0; x < intensitylevels; ++x) {
+                if (Hist[x] > maxCount) {
+                    maxCount = Hist[x];
+                    maxIndex = x;
+                }
+            }
+            oiled(i, j, 0) = rSum[maxIndex] / maxCount;
+            oiled(i, j, 1) = gSum[maxIndex] / maxCount;
+            oiled(i, j, 2) = bSum[maxIndex] / maxCount;
+        }
+    }
+    image = oiled;
 }
 
-// Apply TV effect with
+// Apply TV effect
 void tv(Image& image) {
     for (int i = 0; i < image.width; ++i) {
         for (int j = 0; j < image.height; j += 2) {
@@ -551,14 +602,12 @@ void skew(Image& image) {
     float radian = degree * M_PI / 180.0;
     float tan_angle = tan(radian);
 
-     // Calculate maximum shift and new width
-    unsigned int max_shift = abs(image.height * tan_angle);
-    unsigned int new_width = image.width + max_shift;
+    unsigned int max_shift = abs(image.height * tan_angle); // Calculate maximum shift
 
-    // Add white backgrouund
-    Image skewed(new_width, image.height);
-    for (int i = 0; i < new_width; ++i) {
-        for (int j = 0; j < image.height; ++j) {
+    // Add white background
+    Image skewed(image.width + max_shift, image.height);
+    for (int i = 0; i < skewed.width; ++i) {
+        for (int j = 0; j < skewed.height; ++j) {
             for (int k = 0; k < skewed.channels; ++k) {
                 skewed.setPixel(i, j, k, 255);
             }
