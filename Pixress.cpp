@@ -57,7 +57,7 @@ void merge(Image& image) {
     string img2;
     Image image2;
     while (true) {
-        cout << "Enter the name of the second image with extension (.png or .jpeg or .jpg or .bmp): ";
+        cout << "Enter the name of the second image with extension (.png or .jpeg or .jpg or .bmp or .tga): ";
         cin >> img2;
         try {
             image2.loadNewImage(img2);
@@ -712,7 +712,7 @@ void saving() {
         cout << "No image to save. Please load an image first." << endl;
         main_menu();
     }
-    cout << "Enter the name of the image to save with extension (.png or .jpeg or .jpg or .bmp): ";
+    cout << "Enter the name of the image to save with extension (.png or .jpeg or .jpg or .bmp or .tga): ";
     while (true) {
         cin >> saved;
         string ext;
@@ -725,14 +725,14 @@ void saving() {
         }
 
         // Validate file extension
-        if (ext == ".jpg" || ext == ".png" || ext == ".bmp" || ext_jpeg == ".jpeg") {
+        if (ext == ".jpg" || ext == ".png" || ext == ".bmp" || ext_jpeg == ".jpeg" || ext_jpeg == ".tga") {
             ptr->saveImage(saved);
             cout << "Image saved as " << saved << endl;
             ptr = nullptr;
             break;
         }
         else {
-            cout << "Invalid file format. Please use .jpg, .jpeg, .png, or .bmp: ";
+            cout << "Invalid file format. Please use .jpg, .jpeg, .png, .bmp or .tga: ";
         }
     }
 }
@@ -771,7 +771,7 @@ void main_menu() {
                 }
             }
 
-            cout << "Enter the name of the image to load with extension (.png or .jpeg or .jpg or .bmp): ";
+            cout << "Enter the name of the image to load with extension (.png or .jpeg or .jpg or .bmp or .tga): ";
             cin >> img;
             try {
                 image.loadNewImage(img);
@@ -823,7 +823,7 @@ void main_menu() {
 }
 
 int main() {
-    cout << "====== Welcome to the Image Filter App ======\n";
+    cout << "====== Welcome to Pixress ======\n";
     main_menu();
     return 0;
 }

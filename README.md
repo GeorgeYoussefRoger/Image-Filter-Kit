@@ -1,6 +1,6 @@
-# Pixel Forge
+# Pixress
 
-**Pixel Forge** is an interactive, menu-driven C++ application for applying a wide variety of image processing filters. This project supports loading, editing and saving images in multiple formats. Demonstrating core image processing techniques through a console-based interface.
+**Pixress** is an interactive, menu-driven C++ application for applying a wide variety of image processing filters. This project supports loading, editing and saving images in multiple formats. Demonstrating core image processing techniques through a console-based interface.
 
 ## Features
 PixelForge offers a rich set of 18 image filters and transformations:
@@ -15,7 +15,7 @@ PixelForge offers a rich set of 18 image filters and transformations:
 - **Image Processing**: Direct pixel manipulation using RGB channels
 - **Third-party Libraries**: 
   - `stb_image.h` and `stb_image_write.h` for image I/O
-- **Image Formats Supported**: `.jpg`, `.jpeg`, `.png`, `.bmp`
+- **Image Formats Supported**: `.jpg`, `.jpeg`, `.png`, `.bmp`, `.tga`
 
 ## Prerequisites
 - A C++17 (or later) compatible compiler
