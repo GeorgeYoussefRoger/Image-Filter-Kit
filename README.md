@@ -1,9 +1,9 @@
 # Image-Filter-Kit
 
-An interactive, menu-driven C++ application for applying a wide variety of image processing filters. This project supports loading, editing and saving images in multiple formats. Demonstrating core image processing techniques through a console-based interface.
+A lightweight C++ project for applying a wide variety of image processing filters. This project supports loading, editing and saving images in multiple formats. Demonstrating core image processing techniques through a console-based interface.
 
 ## Features
-PixelForge offers a rich set of 18 image filters and transformations:
+It offers a rich set of 18 image filters and transformations:
 - **Basic Adjustments**: Grayscale, Black & White, Invert, Brightness, Resize, Crop
 - **Color Effects**: Sunlight, Purple, Infrared
 - **Transformations**: Flip, Rotate, Skew
