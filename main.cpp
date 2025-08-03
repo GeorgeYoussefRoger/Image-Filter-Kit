@@ -823,7 +823,7 @@ void main_menu() {
 }
 
 int main() {
-    cout << "====== Welcome to Pixress ======\n";
+    cout << "====== Welcome to Image Filter Kit ======\n";
     main_menu();
     return 0;
 }
